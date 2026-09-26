@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>曲面 z = (y - x²)(y - 2x²)</title>
+  <!-- MathJax v2 の読み込み -->
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+  <!-- Plotly.js の読み込み -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    #plot { width: 90vw; height: 90vh; }
+  </style>
+</head>
+<body>
+
+<div id="plot"></div>
+
+<script>
+  const size = 120;
+  const x = [], y = [], z = [];
+  
+  const xRange = 1.5;
+  const yMin = -0.5, yMax = 2.0;
+
+  for (let i = 0; i < size; i++) {
+    x[i] = -xRange + (2 * xRange * i) / (size - 1);
+    y[i] = yMin + ((yMax - yMin) * i) / (size - 1);
+  }
+
+  for (let i = 0; i < size; i++) {
+    z[i] = [];
+    for (let j = 0; j < size; j++) {
+      const xi = x[j];
+      const yj = y[i];
+      z[i][j] = (yj - Math.pow(xi, 2)) * (yj - 2 * Math.pow(xi, 2));
+    }
+  }
+
+  // 1. 曲面本体（等高線の刻み幅を指定して格子を2倍細かく設定）
+  const surfaceData = {
+    z: z,
+    x: x,
+    y: y,
+    type: 'surface',
+    colorscale: 'Viridis',
+    contours: {
+      x: { show: true, color: 'rgba(0,0,0,0.6)', width: 1, start: -1.5, end: 1.5, size: 0.15 },
+      y: { show: true, color: 'rgba(0,0,0,0.6)', width: 1, start: -0.5, end: 2.0, size: 0.15 }
+    }
+  };
+
+  // 2. 原点 (0,0,0) を示す赤色の球体（面に埋没しないよう微小オフセットを設定）
+  const originPointData = {
+    x: [0],
+    y: [0],
+    z: [0.08], // 曲面の上に綺麗に乗るよう、z座標をわずかに浮かせています
+    mode: 'markers',
+    type: 'scatter3d',
+    name: '原点 (0,0,0)',
+    marker: {
+      size: 2,
+      color: 'red', // 目立つ赤色に変更
+      symbol: 'circle'
+    }
+  };
+
+  const layout = {
+    title: { text: '$\\text{曲面 } z = (y - x^2)(y - 2x^2)$' },
+    autosize: true,
+    showlegend: false,
+    scene: {
+      xaxis: { title: { text: 'x' } },
+      yaxis: { title: { text: 'y' } },
+      zaxis: { title: { text: 'z' } }
+    }
+  };
+
+  Plotly.newPlot('plot', [surfaceData, originPointData], layout);
+</script>
+
+</body>
+</html>
